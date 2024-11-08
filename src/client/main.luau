@@ -21,7 +21,7 @@ type DirectMessage = {
 }
 
 local function cls()
-	process.exec(if process.os == "windows" then "cls" else "clear", nil, { stdio = "forward" })
+	process.spawn(if process.os == "windows" then "cls" else "clear", nil, { stdio = "forward" })
 end
 
 local function send_message(to_username: string, content: string)
