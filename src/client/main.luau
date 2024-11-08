@@ -26,7 +26,7 @@ type DirectMessage = {
 
 -- slightly hacky way to clear the terminal
 local function cls()
-	process.exec(if process.os == "windows" then "cls" else "clear", nil, { stdio = "forward" })
+	(process.spawn or process.exec)(if process.os == "windows" then "cls" else "clear", nil, { stdio = "forward" })
 end
 
 -- sends a GET request to my server/update which should return all messages for you

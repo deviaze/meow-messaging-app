@@ -80,7 +80,7 @@ net.serve {
 			local update_info: UpdateInfo = json.decode(request.body)
 
 			for messageid, message: DirectMessage in Messages do 
-				if message.recipient_username == update_info.username then
+				if message.recipient_username == update_info.username or message.authorname == update_info.username then
 					table.insert(messages_to_give_user, message)
 				end
 			end
