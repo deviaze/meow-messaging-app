@@ -1,13 +1,11 @@
 --!strict
 -- rewrite with zune to fix scheduler bug
 
--- local net = zune.net
--- local json = zune.serde.json
-
 local net = require("@zcore/net")
 local json = require("@zcore/serde").json
 local datetime = require("@zcore/datetime")
--- type of message bodies we receive from the client
+
+-- Represents the JSON message format we receive from clients from POST /send-message
 type ClientMessage = {
 	from_username: string,
 	to_username: string?,
@@ -16,7 +14,7 @@ type ClientMessage = {
 	reply_to_messageid: string?,
 }
 
--- types of messages we store here on the server
+-- Represents a direct message we store on the server
 type DirectMessage = {
 	messageid: string,
 	authorname: string,
@@ -40,14 +38,22 @@ type UpdateInfo = {
 
 type ServerMessage = ChannelMessage | DirectMessage
 
-local Messages: { [string]: DirectMessage } = {}
+local DirectMessages: { [string]: DirectMessage } = {}
 
-net.serve {
+net.serve({
 	address = "0.0.0.0",
 	port = 8080,
-	request = function(request: ServerRequest)
+	request = function(request: net.ServerRequest)
 		local client_message: ClientMessage = json.decode(request.body)
-		if request.path == "/send-message" and request.method == "POST" then
+		if request.path == "/send-message" then
+			if request.method ~= "POST" then
+				local error_response: net.ServerResponse = {
+					statusCode = 405, -- method not allowed
+					body = `/send-message expects POST method, got: {request.method}`
+				}
+				return error_response
+			end
+			
 			local message_timestamp = datetime.now().unixTimestamp
 			local messageid = tostring(os.clock())
 
@@ -60,7 +66,7 @@ net.serve {
 					content = client_message.content,
 					timestamp = message_timestamp,
 				}
-				Messages[messageid] = direct_message
+				DirectMessages[messageid] = direct_message
 				return json.encode(direct_message)
 			elseif client_message.to_channelid then
 				local channel_message: ChannelMessage = {
@@ -79,7 +85,7 @@ net.serve {
 			local messages_to_give_user: { DirectMessage } = {}
 			local update_info: UpdateInfo = json.decode(request.body)
 
-			for messageid, message: DirectMessage in Messages do 
+			for messageid, message: DirectMessage in DirectMessages do 
 				if message.recipient_username == update_info.username or message.authorname == update_info.username then
 					table.insert(messages_to_give_user, message)
 				end
@@ -93,4 +99,4 @@ net.serve {
 			return "unsupported path"
 		end
 	end
-}
+})

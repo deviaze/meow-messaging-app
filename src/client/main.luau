@@ -1,10 +1,12 @@
+-- imports the needed standard libraries from Lune
 local net = require("@lune/net")
 local stdio = require("@lune/stdio")
 local task = require("@lune/task")
 local datetime = require("@lune/datetime")
 local process = require("@lune/process")
 
-local my_username = ""
+-- caches username from user input for use within update and send_message functions
+local my_username = stdio.prompt("text", "Your username: ")
 
 -- this is the format for messages we need to send to the server
 type ClientMessage = {
@@ -26,29 +28,31 @@ type DirectMessage = {
 
 -- slightly hacky way to clear the terminal
 local function cls()
-	(process.spawn or process.exec)(if process.os == "windows" then "cls" else "clear", nil, { stdio = "forward" })
+	(process.spawn or (process :: any).exec)(if process.os == "windows" then "cls" else "clear", nil, { stdio = "forward" })
 end
 
--- sends a GET request to my server/update which should return all messages for you
-local function update(last_updated: number?)
-	local mess_rec = net.request {
+-- sends a GET /update request to server; should return an array of DirectMessages
+local function update(last_updated: number?): { DirectMessage }
+	local update_response = net.request({
 		url = "http://67.205.186.23:8080/update",
 		method = "GET",
 		body = net.jsonEncode({
 			username = my_username,
 			last_updated = last_updated or 0,
 		}),
-	}
-	if mess_rec.ok then
-		local new_messages = net.jsonDecode(mess_rec.body)
+	})
+	if update_response.ok then
+		local new_messages = net.jsonDecode(update_response.body)
 		return new_messages :: { DirectMessage }
 	else
-		error(mess_rec)
+		error(update_response)
 	end
 end
 
+-- Sends a POST /send-message request to server
 local function send_message(to_username: string, content: string)
-	local message_to_send: ClientMessage = {
+	-- the type annotation message_to_send: ClientMessage ensures this errors if we're missing a required field
+	local message_to_send: ClientMessage = { 
 		from_username = my_username,
 		to_username = to_username,
 		content = content,
@@ -65,8 +69,6 @@ end
 
 local last_updated = 0
 
-my_username = stdio.prompt("text", "Your username: ")
-
 while task.wait(0.25) do
 	cls()
 	local new_messages = update(last_updated)
@@ -81,3 +83,5 @@ while task.wait(0.25) do
 		send_message(send_to_username, message_content)
 	end
 end
+
+return nil

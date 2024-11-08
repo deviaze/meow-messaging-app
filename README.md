@@ -22,11 +22,11 @@ We chose to write this project in the Luau programming language to take advantag
 Luau types allow us to easily define our JSON interchange formats into the code itself and statically verify that the data we pass into our HTTP APIs matches the data we expect to receive.
 This makes it extremely easy to write, document, and use API surfaces within our codebase.
 
-To run Luau code outside an embedded environment, you can use a Luau runtime such as Lune or Zune. In our current implementation, we use Lune to run client code and Zune for server code. 
+To run Luau code outside an embedded environment, you can use a Luau runtime such as Lune or Zune. In our current implementation, we use Lune to run client code and Zune for server code.
 
-The Lune runtime is the most popular standalone runtime for the Luau language (analogous to `node` for JavaScript), and provides easy access to core general-purpose-programming functionality like net requests, websockets, http servers, command-line input and output, shell commands, data serialization, etc. 
+The Lune runtime is the most popular standalone runtime for the Luau language (analogous to `node` for JavaScript), and provides easy access to core general-purpose-programming functionality like net requests, websockets, http servers, command-line input and output, shell commands, data serialization, etc.
 
-Zune is an alternate Luau runtime that implements many Lune-inspired APIs but is built in Zig instead of Rust. 
+Zune is an alternate Luau runtime that implements many Lune-inspired APIs but is built in Zig instead of Rust.
 
 Although we planned to use Lune on both the client and server, we hit an implementation bug in Lune's `net.serve` that caused our webserver to irrevocably yield after a few requests. As Zune also implements `net.serve`, we were able to rewrite the code for Zune, which seems to have solved that problem.
 
@@ -53,16 +53,20 @@ unzip ./lune-0.8.9-linux-x86_64.zip
 chmod +x ./lune
 
 # launch the client
-./lune run ./src/client/main.luau
+./lune run .
 
 ```
 
+### Editor support
+
+To review this code with proper syntax highlighting and editor support, install the VSCode extension "Luau Language Server" from JohnnyMorganz
+
 ## Usage
+
 - `cd` into this folder/workspace
-- run the client with `./lune run ./src/client/main.luau`
+- run the client with `./lune run .`
 - enter your username when prompted and press Enter
 - to send a message, type in another username, press Enter, type in your message content and press Enter.
 - to update messages without sending a message, press Enter twice
 - repeat to send/receive messages
 - Hit `Ctrl + C` to exit the program
-
