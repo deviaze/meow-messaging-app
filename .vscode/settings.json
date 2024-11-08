@@ -4,5 +4,8 @@
 	},
 	"luau-lsp.fflags.override": {
 		"LuauSolverV2": "false"
-	}
+	},
+	"luau-lsp.types.definitionFiles": [
+		"/home/deviaze/.zune/typedefs/global/zune.d.luau"
+	]
 }

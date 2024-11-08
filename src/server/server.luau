@@ -1,10 +1,12 @@
 --!strict
+-- rewrite with zune to fix scheduler bug
 
--- this runs on my server, u don't run this on the client!!
+-- local net = zune.net
+-- local json = zune.serde.json
 
-local net = require("@lune/net")
-local datetime = require("@lune/datetime")
-
+local net = require("@zcore/net")
+local json = require("@zcore/serde").json
+local datetime = require("@zcore/datetime")
 -- type of message bodies we receive from the client
 type ClientMessage = {
 	from_username: string,
@@ -40,12 +42,12 @@ type ServerMessage = ChannelMessage | DirectMessage
 
 local Messages: { [string]: DirectMessage } = {}
 
-net.serve(8080, {
+net.serve {
 	address = "0.0.0.0",
-	handleRequest = function(request)
-		print(request.path)
+	port = 8080,
+	request = function(request: ServerRequest)
+		local client_message: ClientMessage = json.decode(request.body)
 		if request.path == "/send-message" and request.method == "POST" then
-			local client_message: ClientMessage = net.jsonDecode(request.body)
 			local message_timestamp = datetime.now().unixTimestamp
 			local messageid = tostring(os.clock())
 
@@ -59,23 +61,23 @@ net.serve(8080, {
 					timestamp = message_timestamp,
 				}
 				Messages[messageid] = direct_message
-				return net.jsonEncode(direct_message)
+				return json.encode(direct_message)
 			elseif client_message.to_channelid then
 				local channel_message: ChannelMessage = {
 					messageid = messageid,
 					authorname = client_message.from_username,
 					channelid = client_message.to_channelid,
 					content = client_message.content,
-					timestamp = datetime.now().unixTimestamp
+					timestamp = message_timestamp
 				}
-				Messages[messageid] = channel_message
-				return net.jsonEncode(channel_message)
+				-- Messages[messageid] = channel_message
+				return json.encode(channel_message)
 			else
 				error("hey, we have a client not passing .to_username or .to_channelid")
 			end
 		elseif request.path == "/update" then
 			local messages_to_give_user: { DirectMessage } = {}
-			local update_info: UpdateInfo = net.jsonDecode(request.body)
+			local update_info: UpdateInfo = json.decode(request.body)
 
 			for messageid, message: DirectMessage in Messages do 
 				if message.recipient_username == update_info.username then
@@ -85,13 +87,10 @@ net.serve(8080, {
 			table.sort(messages_to_give_user, function(a, b)
 				return a.timestamp < b.timestamp
 			end)
-			return net.jsonEncode(messages_to_give_user)
+			return json.encode(messages_to_give_user)
 		else
 			print(request)
 			return "unsupported path"
 		end
 	end
-})
-
-
--- listen to all incoming requests from clients
+}
