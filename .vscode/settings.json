@@ -1,0 +1,8 @@
+{
+	"code-runner.executorMap": {
+		"luau": "lune run ./src/client/main.luau"
+	},
+	"luau-lsp.fflags.override": {
+		"LuauSolverV2": "false"
+	}
+}
