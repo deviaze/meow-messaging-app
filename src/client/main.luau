@@ -78,10 +78,13 @@ while task.wait(0.25) do
 		print(`{ message.authorname }: { message.content } (at {formatted_timestamp})`)
 	end
 	local send_to_username = stdio.prompt("text", "Username to send to: (hit enter twice to just update messages)")
+	if send_to_username == ".exit" then break end
 	local message_content = stdio.prompt("text", "Message content: ")
-	if send_to_username ~= "" and message_content ~= "" then
+	if message_content == ".exit" then break end	
+    if send_to_username ~= "" and message_content ~= "" then
 		send_message(send_to_username, message_content)
 	end
 end
 
 return nil
+

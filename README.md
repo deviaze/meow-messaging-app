@@ -69,4 +69,4 @@ To review this code with proper syntax highlighting and editor support, install 
 - to send a message, type in another username, press Enter, type in your message content and press Enter.
 - to update messages without sending a message, press Enter twice
 - repeat to send/receive messages
-- Hit `Ctrl + C` to exit the program
+- Type ".exit" or hit `Ctrl + C` to exit the program
