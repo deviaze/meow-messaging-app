@@ -72,11 +72,14 @@ local get_clients_response = net.request({
 	url = "http://67.205.186.23:8080/get-clients"
 })
 
-local clients =
-	if get_clients_response.ok then
-		net.jsonDecode(get_clients_response.body)
-	else error("GET /get-clients response failed")
-	
+local clients = {}
+if get_clients_response.ok then
+	clients = net.jsonDecode(get_clients_response.body)
+else
+	print(get_clients_response)
+	error("GET /get-clients response failed")
+end
+
 print("Username | Last seen at")
 for username, last_seen_at in clients do
 	local formatted_timestamp = datetime.fromUnixTimestamp(last_seen_at)

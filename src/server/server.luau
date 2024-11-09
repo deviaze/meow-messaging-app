@@ -47,8 +47,8 @@ net.serve({
 	address = "0.0.0.0",
 	port = 8080,
 	request = function(request: net.ServerRequest)
-		local client_message: ClientMessage = json.decode(request.body)
 		if request.path == "/send-message" then
+			local client_message: ClientMessage = json.decode(request.body)
 			if request.method ~= "POST" then
 				local error_response: net.ServerResponse = {
 					statusCode = 405, -- method not allowed
