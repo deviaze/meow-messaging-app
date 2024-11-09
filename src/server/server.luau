@@ -38,6 +38,9 @@ type UpdateInfo = {
 
 type ServerMessage = ChannelMessage | DirectMessage
 
+-- dictionary of client usernames to last update timestamps
+local CurrentClients: { [string]: number } = {}
+
 local DirectMessages: { [string]: DirectMessage } = {}
 
 net.serve({
@@ -94,6 +97,8 @@ net.serve({
 				return a.timestamp < b.timestamp
 			end)
 			return json.encode(messages_to_give_user)
+		elseif request.path == "/get-clients" then
+			return json.encode(CurrentClients)
 		else
 			print(request)
 			return "unsupported path"

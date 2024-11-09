@@ -68,6 +68,21 @@ local function send_message(to_username: string, content: string)
 end
 
 local last_updated = 0
+local get_clients_response = net.request({
+	url = "http://67.205.186.23:8080/get-clients"
+})
+
+local clients =
+	if get_clients_response.ok then
+		net.jsonDecode(get_clients_response.body)
+	else error("GET /get-clients response failed")
+	
+print("Username | Last seen at")
+for username, last_seen_at in clients do
+	local formatted_timestamp = datetime.fromUnixTimestamp(last_seen_at)
+		:formatLocalTime("%A %m/%d @%I:%M %p") -- Monday 11/11 @10:30 PM
+	print(`  {username}: {formatted_timestamp}`)
+end
 
 while task.wait(0.25) do
 	cls()
@@ -77,10 +92,13 @@ while task.wait(0.25) do
 		local formatted_timestamp = datetime.fromUnixTimestamp(message.timestamp):formatLocalTime("%I:%M:%S")
 		print(`{ message.authorname }: { message.content } (at {formatted_timestamp})`)
 	end
+	
 	local send_to_username = stdio.prompt("text", "Username to send to: (hit enter twice to just update messages)")
 	if send_to_username == ".exit" then break end
+
 	local message_content = stdio.prompt("text", "Message content: ")
-	if message_content == ".exit" then break end	
+	if message_content == ".exit" then break end
+
     if send_to_username ~= "" and message_content ~= "" then
 		send_message(send_to_username, message_content)
 	end
