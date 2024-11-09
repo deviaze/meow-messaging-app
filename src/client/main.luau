@@ -68,27 +68,29 @@ local function send_message(to_username: string, content: string)
 end
 
 local last_updated = 0
-local get_clients_response = net.request({
-	url = "http://67.205.186.23:8080/get-clients"
-})
-
-local clients = {}
-if get_clients_response.ok then
-	clients = net.jsonDecode(get_clients_response.body)
-else
-	print(get_clients_response)
-	error("GET /get-clients response failed")
-end
-
-print("Username | Last seen at")
-for username, last_seen_at in clients do
-	local formatted_timestamp = datetime.fromUnixTimestamp(last_seen_at)
-		:formatLocalTime("%A %m/%d @%I:%M %p") -- Monday 11/11 @10:30 PM
-	print(`  {username}: {formatted_timestamp}`)
-end
 
 while task.wait(0.25) do
 	cls()
+
+	local get_clients_response = net.request({
+		url = "http://67.205.186.23:8080/get-clients"
+	})
+	
+	local clients = {}
+	if get_clients_response.ok then
+		clients = net.jsonDecode(get_clients_response.body)
+	else
+		print(get_clients_response)
+		error("GET /get-clients response failed")
+	end
+	
+	print("Username | Last seen at")
+	for username, last_seen_at in clients do
+		local formatted_timestamp = datetime.fromUnixTimestamp(last_seen_at)
+			:formatLocalTime("%A %m/%d @%I:%M %p") -- Monday 11/11 @10:30 PM
+		print(`  {username}: {formatted_timestamp}`)
+	end
+
 	local new_messages = update(last_updated)
 	for _, message in new_messages do
 		last_updated = message.timestamp

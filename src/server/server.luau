@@ -60,6 +60,8 @@ net.serve({
 			local message_timestamp = datetime.now().unixTimestamp
 			local messageid = tostring(os.clock())
 
+			CurrentClients[client_message.from_username] = message_timestamp
+
 			if client_message.to_username then
 				-- this is a direct message
 				local direct_message: DirectMessage = {
@@ -87,6 +89,8 @@ net.serve({
 		elseif request.path == "/update" then
 			local messages_to_give_user: { DirectMessage } = {}
 			local update_info: UpdateInfo = json.decode(request.body)
+
+			CurrentClients[update_info.username] = datetime.now().unixTimestamp
 
 			for messageid, message: DirectMessage in DirectMessages do 
 				if message.recipient_username == update_info.username or message.authorname == update_info.username then
