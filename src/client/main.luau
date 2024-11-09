@@ -69,9 +69,22 @@ end
 
 local last_updated = 0
 
+local function red(text: string): string
+	return stdio.color("red") .. text .. stdio.color("reset")
+end
+local function blue(text: string): string
+	return stdio.color("blue") .. text .. stdio.color("reset")
+end
+local function cyan(text: string): string
+	return stdio.color("cyan") .. text .. stdio.color("reset")
+end
+local function green(text: string): string
+	return stdio.color("green") .. text .. stdio.color("reset")
+end
+
 while task.wait(0.25) do
 	cls()
-
+	print("Clients")
 	local get_clients_response = net.request({
 		url = "http://67.205.186.23:8080/get-clients"
 	})
@@ -84,18 +97,19 @@ while task.wait(0.25) do
 		error("GET /get-clients response failed")
 	end
 	
-	print("Username | Last seen at")
+	print("  Username | Last seen\n  ---------------------")
 	for username, last_seen_at in clients do
 		local formatted_timestamp = datetime.fromUnixTimestamp(last_seen_at)
-			:formatLocalTime("%A %m/%d @%I:%M %p") -- Monday 11/11 @10:30 PM
-		print(`  {username}: {formatted_timestamp}`)
+			:formatLocalTime("%A %m/%d at %I:%M %p") -- Monday 11/11 at 10:30 PM
+		print(`  {blue(username)}: {formatted_timestamp}`)
 	end
+	print("  ---------------------")
 
 	local new_messages = update(last_updated)
 	for _, message in new_messages do
 		last_updated = message.timestamp
-		local formatted_timestamp = datetime.fromUnixTimestamp(message.timestamp):formatLocalTime("%I:%M:%S")
-		print(`{ message.authorname }: { message.content } (at {formatted_timestamp})`)
+		local formatted_timestamp = datetime.fromUnixTimestamp(message.timestamp):formatLocalTime("%I:%M %p")
+		print(`{green(message.authorname)} to {blue(message.recipient_username)}: {message.content} {cyan(`({formatted_timestamp})`)}`)
 	end
 	
 	local send_to_username = stdio.prompt("text", "Username to send to: (hit enter twice to just update messages)")
