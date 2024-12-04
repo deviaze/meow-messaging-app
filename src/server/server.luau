@@ -93,7 +93,9 @@ net.serve({
 			CurrentClients[update_info.username] = datetime.now().unixTimestamp
 
 			for messageid, message: DirectMessage in DirectMessages do 
-				if message.recipient_username == update_info.username or message.authorname == update_info.username then
+				if message.recipient_username == update_info.username 
+				   or message.authorname == update_info.username
+				then
 					table.insert(messages_to_give_user, message)
 				end
 			end

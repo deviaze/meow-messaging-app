@@ -1,2 +1,2 @@
 print("Starting Meow Messaging Client")
-require("./src/client/main")
+require("./src/client/client")

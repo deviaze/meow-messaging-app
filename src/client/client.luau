@@ -1,3 +1,5 @@
+--!nolint FunctionUnused
+
 -- imports the needed standard libraries from Lune
 local net = require("@lune/net")
 local stdio = require("@lune/stdio")
@@ -86,7 +88,7 @@ while task.wait(0.25) do
 	cls()
 	print("Clients")
 	local get_clients_response = net.request({
-		url = "http://67.205.186.23:8080/get-clients"
+		url = "http://67.205.186.23:8080/get-clients",
 	})
 	
 	local clients = {}
@@ -99,8 +101,10 @@ while task.wait(0.25) do
 	
 	print("  Username | Last seen\n  ---------------------")
 	for username, last_seen_at in clients do
-		local formatted_timestamp = datetime.fromUnixTimestamp(last_seen_at)
+		local formatted_timestamp = datetime
+			.fromUnixTimestamp(last_seen_at)
 			:formatLocalTime("%A %m/%d at %I:%M %p") -- Monday 11/11 at 10:30 PM
+
 		print(`  {blue(username)}: {formatted_timestamp}`)
 	end
 	print("  ---------------------")
