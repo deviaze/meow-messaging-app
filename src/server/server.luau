@@ -36,10 +36,21 @@ type UpdateInfo = {
 	last_updated: number,
 }
 
+type ConnectionInfo = {
+	username: string,
+	pin: string,
+}
+
+type UserInfo = {
+	username: string,
+	pin: string,
+	last_updated: number,
+}
+
 type ServerMessage = ChannelMessage | DirectMessage
 
 -- dictionary of client usernames to last update timestamps
-local CurrentClients: { [string]: number } = {}
+local CurrentClients: { [string]: UserInfo } = {}
 
 local DirectMessages: { [string]: DirectMessage } = {}
 
@@ -60,7 +71,11 @@ net.serve({
 			local message_timestamp = datetime.now().unixTimestamp
 			local messageid = tostring(os.clock())
 
-			CurrentClients[client_message.from_username] = message_timestamp
+			CurrentClients[client_message.from_username] = {
+				username = client_message.from_username,
+				pin = client_message.pin,
+				last_updated = message_timestamp,
+			}
 
 			if client_message.to_username then
 				-- this is a direct message
@@ -105,6 +120,31 @@ net.serve({
 			return json.encode(messages_to_give_user)
 		elseif request.path == "/get-clients" then
 			return json.encode(CurrentClients)
+		elseif request.path == "/connect" then
+			local connection_info: ConnectionInfo = json.decode(request.body)
+			local username = connection_info.username
+			local user_info = CurrentClients[username]
+			if user_info ~= nil then
+				if user_info.pin == connection_info.pin then
+					return json.encode({ok = true})
+				else
+					return json.encode({
+						ok = false, 
+						err = "wrong pin",
+					})
+				end
+			else
+				local new_user_info: UserInfo = {
+					username = connection_info.username,
+					pin = connection_info.pin,
+					last_updated = datetime.now().unixTimestamp,
+				}
+				CurrentClients[connection_info.username] = new_user_info
+				return json.encode({
+					ok = true, 
+					new_account = true,
+				})
+			end
 		else
 			print(request)
 			return "unsupported path"

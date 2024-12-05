@@ -7,8 +7,6 @@ local task = require("@lune/task")
 local datetime = require("@lune/datetime")
 local process = require("@lune/process")
 
--- caches username from user input for use within update and send_message functions
-local my_username = stdio.prompt("text", "Your username: ")
 
 -- this is the format for messages we need to send to the server
 type ClientMessage = {
@@ -26,6 +24,11 @@ type DirectMessage = {
 	recipient_username: string,
 	content: string,
 	timestamp: number,
+}
+
+type ConnectionInfo = {
+	username: string,
+	pin: string,
 }
 
 -- slightly hacky way to clear the terminal
@@ -69,6 +72,38 @@ local function send_message(to_username: string, content: string)
 	end
 end
 
+local function connect_user()
+	local client_username = stdio.prompt("text", "Username: ")
+	if client_username == ".exit" then 
+		process.exit()
+	end
+	local client_pin = stdio.prompt("text", "Pin: ")
+	if client_pin == ".exit" then
+		process.exit()
+	end
+
+	local response = net.request({
+		url = "http://67.205.186.23:8080/send-message",
+		method = "POST",
+		body = net.jsonEncode({
+			username = client_username, 
+			pin = client_pin,
+		})
+	})
+	if response.ok then
+		local response_body = net.jsonDecode(response.body)
+		if not response_body.ok then
+			if response_body.err then
+				print(response_body.err)
+			end
+			connect_user()
+		end
+	else
+		print(response)
+		process.exit()
+	end
+end
+
 local last_updated = 0
 
 local function red(text: string): string
@@ -83,6 +118,8 @@ end
 local function green(text: string): string
 	return stdio.color("green") .. text .. stdio.color("reset")
 end
+
+connect_user()
 
 while task.wait(0.25) do
 	cls()
