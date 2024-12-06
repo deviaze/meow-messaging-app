@@ -31,6 +31,8 @@ type ConnectionInfo = {
 	pin: string,
 }
 
+local my_username = ""
+
 -- slightly hacky way to clear the terminal
 local function cls()
 	(process.spawn or (process :: any).exec)(if process.os == "windows" then "cls" else "clear", nil, { stdio = "forward" })
@@ -76,6 +78,8 @@ local function connect_user()
 	local client_username = stdio.prompt("text", "Username: ")
 	if client_username == ".exit" then 
 		process.exit()
+	else
+		my_username = client_username
 	end
 	local client_pin = stdio.prompt("text", "Pin: ")
 	if client_pin == ".exit" then
