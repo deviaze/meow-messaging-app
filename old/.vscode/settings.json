@@ -1,0 +1,16 @@
+{
+  "code-runner.executorMap": {
+    "luau": "lune run ./src/client/client.luau"
+  },
+  "luau-lsp.fflags.override": {
+    "LuauSolverV2": "false"
+  },
+  "luau-lsp.require.directoryAliases": {
+    "@zcore/": "~/.zune/typedefs/core/",
+    "@lune/": "~/.lune/.typedefs/0.8.9/"
+  },
+  "luau-lsp.types.definitionFiles": [
+    "/home/deviaze/.zune/typedefs/global/zune.d.luau"
+  ],
+  "luau-lsp.platform.type": "standard",
+}

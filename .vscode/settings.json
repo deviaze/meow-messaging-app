@@ -1,16 +1,24 @@
 {
-  "code-runner.executorMap": {
-    "luau": "lune run ./src/client/client.luau"
-  },
   "luau-lsp.fflags.override": {
+    "LuauTypeSolverRelease": "654",
+    "LuauNewSolverPopulateTableLocations": "true",
+    "LuauNewSolverPrePopulateClasses": "true",
     "LuauSolverV2": "false"
   },
-  "luau-lsp.require.directoryAliases": {
-    "@zcore/": "~/.zune/typedefs/core/",
-    "@lune/": "~/.lune/.typedefs/0.8.9/"
+  "code-runner.executorMap": {
+    "luau": "seal run client"
+  },
+  "workbench.editor.customLabels.patterns": {
+    "**/old/src/**/*.luau": "${dirname(2)}/${filename}.luau",
+    "**/init.luau": "${dirname}/"
   },
   "luau-lsp.types.definitionFiles": [
-    "/home/deviaze/.zune/typedefs/global/zune.d.luau"
+    "./typedefs/globals.d.luau"
   ],
-  "luau-lsp.platform.type": "standard",
+  "luau-lsp.completion.imports.suggestRequires": true,
+  "stylua.targetReleaseVersion": "latest",
+  "luau-lsp.require.directoryAliases": {
+    "@workspace": "./",
+    "@std": "./typedefs/std/"
+  }
 }

@@ -1,3 +1,4 @@
+--!nocheck
 --!nolint FunctionUnused
 
 -- imports the needed standard libraries from Lune

@@ -1,4 +1,4 @@
---!strict
+--!nocheck
 -- rewrite with zune to fix scheduler bug
 
 local net = require("@zcore/net")
